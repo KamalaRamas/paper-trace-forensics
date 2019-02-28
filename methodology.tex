@@ -1,0 +1,10 @@
+%-------------------------------------------------------------------------------
+\section{Methodology}
+%-------------------------------------------------------------------------------
+Graph representation:  Aggregate of its component node (service) representations
+
+Aggregator function: Summation
+
+While there are other aggregator functions that we can use, summation is the simplest and has been used to obtain graph representations in previous work\kam{TODO: Needs citation}. The aggregate representation obtained can also be intuitively thought of as a linear combination of all the nodes present into the graph. 
+
+Service representations : Obtained by using prior work, node2vec\kam{TODO citation}, which employs similar techniques as word2vec but for graphs. Graph nodes, in this case services, are analogous to words, and random walks in the graph generate for us sentences in the doc to train.

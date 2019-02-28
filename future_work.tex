@@ -1,9 +1,26 @@
 %-------------------------------------------------------------------------------
 \section{Conclusions and Future Work}
 %-------------------------------------------------------------------------------
-Reducing number of normative graphs to be considered \newline
-Aggregation is summation: Loses some structural information. Difficult to reconstruct graph from representation. Alternatives? If we can do this, graph synthesis \newline
-Missing pools. Use transductive methods. \newline
-Can we achieve perfect information for link/node prediction without retaining the whole graph? \newline
+\begin{itemize}
+\item Representations:
+    \begin{enumerate}
+    \item Use a different aggregator function other than sum:
+    This will probably be necessary for synthetic trace generation. Currently, we cannot convert a representation into a trace. 
+    \item Assign weights to services based on their importance.
+    \item Use tranductive models to get representations for services not seen in training.
+    \end{enumerate}
+\item Fault diagnosis
+    \begin{enumerate}
+    \item We are curating our corpus to add more failed graphs. Want to show examples suggesting a successful trace in which a fallback path was taken as a potential hint.
+    \item We need to remember some corpus of successful graphs to compare against. The next step would be to learn a few canonical graphs representing successful executions that we can use when providing hints.
+    \end{enumerate}
+\item Response time mutations
+For fault diagnostics, we only considered cases when the unsuccessful execution was not calling out to some expected services. There are failures in which the only differential is response time. For such failure cases, might incorporating latency into representations be a good idea?
+\item Other technqiues
+    \begin{enumerate}
+    \item Graph convolutional networks and autoencoders may be other techniques that may be applicable in this context
+    \item Comparisons of these via-a-vis our current technique might be useful to highlight strengths and weaknesses of each.
+    \end{enumerate}
+\end{itemize}
 
 

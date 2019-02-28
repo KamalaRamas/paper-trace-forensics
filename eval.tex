@@ -1,33 +1,39 @@
 %-------------------------------------------------------------------------------
 \section{Evaluation}
 %-------------------------------------------------------------------------------
-Sanity check: \newline
-%\includegraphics[scale=0.2]{tsne_viz.png}
+\kam{WIP: To strengthen the eval, I'm implementing a strawman for graph representations as a baseline to compare our technique against}
+
+For our evaluation, we obtained traces from a large e-commerce company, where the underlying system is a microservice architecture. The traces encapsulate the request-response interactions of microservices. We obtained traces from three different request paths in the system that correspond to viewing, selling and checking out an item in the catalog. The request paths are not mutually exclusive i.e. they share some services\kam{TODO: How many shared services?} and traces from the same request path can vary subtly based on the exact request parameters.
+
+We use graphs corresponding to a small fraction of traces are used to generate node representations which are then used by clustering, prediction and diagnostic tasks. 
+
+Sanity check: 
 \begin{itemize}
-\item Classification: \newline 
+\item Compute representations for all graphs
+\item Cluster graph representations
+\end{itemize}
+Use Adjusted-Rand index to compare expected labels with obtained labels
+
+Adjusted-Rand index returns a bounded value [-1,1], where 0 or negative values indicate the data points were drawn randomly and 1 is a perfect score. Our results returned a value > 0.9
+%\includegraphics[scale=0.2]{tsne_viz.png}
+
+Classification:
 Why classification? 
 We are able to learn clusters accurately, but the problem is that using the clusters for predictive analysis performs poorly. The reason is that clusters are diffuse and in order to predict if a graph is in a cluster or not, the arithmetic mean of all pints in the cluster is computed. Doing so, however, results in information loss and leads to inaccurate results.
 
-I started with a set of good graphs and a restricted set of test graphs
+Start with a set of good graphs and a restricted set of test graphs
 Classification worked perfectly when we have 16-dimensional vectors for the nodes \ newline
 %\includegraphics[scale=0.4]{logistic_2d.png} \newline
 %\includegraphics[scale=0.4]{test_logistic_2d.png} \newline
 
-Q: Can we reduce the dimensions further?
-When the dimensions were reduced to 4, a few graphs were mis-classified but not many  i.e. earlier there were no misclassification, now 1 in 575 graphs was misclassified
+We split our graphs into a training set and a test set
+Specifically, we used the graphs from successful executions as training graphs and those from failed interactions as test graphs
+We are able to learn a logistic regression classifier that is able to predict the categories of test graph with accuracy close to 100\%
+However, since not all the request paths are considered and the categories are coarse, we consider this an extended sanity check
 
-Take-away: Only small amount of information was required for classification, enabling compression
-
-\item Predicting missing nodes and edges:  \newline
-The way the problem is set up is that we have a graph that may be missing some nodes and/or edges. We have a set of complete graphs. Which one of them is the completion to our graph?
-We can use euclidean distance between the representation for our graph and the target graph and choose the one that minimizes it. The traditional way to do this , however, is to use graph edit distance. 
-
-Q: Do our results approximate computing the graph edit distance approach? 
-To compute this, we implemented both approaches and then computed mean, median and mode for each of the two approaches. As the number of dimensions increased from 4 to 16, the gap between the two approaches narrowed. 
-
-Q: Can we eliminate this gap? What if we choose number of dimensions to be 128?
-Turns out 128 dimensions is only a slight improvement over 16
-
-Take away: This question requires more information to be retained as compared with classification.
-\end{itemize}
-
+Trace forensics: \newline
+The failure here is caused by the failure of a particular service and some downstream services not being called. 
+Therefore, this failure is due to the absence of one or more services.
+However, all the services along the request path are alerting.
+Additionally, there might also be other failures that are othogonal to the failure which add noise to the alerts.
+The hint points to a tree of services that ought to have been called, but weren’t. The suggestion will be to troubleshoot the service at the root of this tree first.
