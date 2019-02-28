@@ -7,7 +7,7 @@
     \item Use a different aggregator function other than sum:
     This will probably be necessary for synthetic trace generation. Currently, we cannot convert a representation into a trace. 
     \item Assign weights to services based on their importance.
-    \item Use tranductive models to get representations for services not seen in training.
+    \item Use transductive models to get representations for services not seen in training.
     \end{enumerate}
 \item Fault diagnosis
     \begin{enumerate}
@@ -16,9 +16,9 @@
     \end{enumerate}
 \item Response time mutations
 For fault diagnostics, we only considered cases when the unsuccessful execution was not calling out to some expected services. There are failures in which the only differential is response time. For such failure cases, might incorporating latency into representations be a good idea?
-\item Other technqiues
+\item Other techniques
     \begin{enumerate}
-    \item Graph convolutional networks and autoencoders may be other techniques that may be applicable in this context
+    \item Graph convolutional networks and auto-encoders may be other techniques that may be applicable in this context
     \item Comparisons of these via-a-vis our current technique might be useful to highlight strengths and weaknesses of each.
     \end{enumerate}
 \end{itemize}
