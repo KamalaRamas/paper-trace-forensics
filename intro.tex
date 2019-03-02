@@ -1,23 +1,30 @@
 %-------------------------------------------------------------------------------
 \section{Introduction}
 %-------------------------------------------------------------------------------
+\ash{To debug a problem in production it is insufficient to merely identify a failed execution. We need to clearly identify what distinguishes the failed execution from a successful execution. }
+
+\ash{Distributed tracing systems like Dapper, do uniform sampling at very low rates to keep the cost of storing traces low. As a consequence, the long tail of distributed executions is not captured. This tail contains the traces which are symptomatic of edge cases like slow queries, one off execution paths that are infrequent but imperative for identifying the bottlenecks and improving the system.}
+
 Here are three problems: 
 \begin{enumerate}
 \item What went wrong? For some failed execution, given its trace, can we hint at the possible cause of failure by comparing shapes of graphs from failed and successful interactions?
-\item How does the system behave at scale? How can we artificially generate new traces to test scale out?
-\item What just happened? Trace classification i.e. Given a set of traces and their corresponding classes, can we predict the class of a new trace? 
+\item How does the system behave at scale? How can we artificially generate new traces to test scale out? \ash{Are we doing this ? We tried that with Slug, but that did not fly at HotCloud.}
+\item What just happened? Trace classification i.e. Given a set of traces and their corresponding classes, can we predict the class of a new trace? \ash{See second comment above for motivation on why need this}
 \end{enumerate}
 
 For all of the above problems, the solutions are a combination of:
 \begin{itemize}
-\item Tracing: Implementing tracing in systems means that we can now get detailed information of the system execution at the request level, which can give us a better understanding of the system.
+\item Tracing: Implementing \ash{end to end} tracing in systems means that we can now get detailed \ash{we need to specify what detailed means i.e. traces capture the causality of events that are part of the execution}information of the system execution at the request level, which can give us a better understanding of the system.
 \item Graph representations: How can we generate graph representations which are useful in comparing and reasoning about graphs drawn from traces?
 \end{itemize}
+\ash{}
 
 Why representational learning?: \newline
 Typically, to obtain a vector representation of a graph, G=(V,E), we might extract features relevant to the problem we are trying to solve, such as maximum depth, average in-degree, average fan-out, etc. Features extracted are dependent both on the family of graphs under consideration and also upon the specific task. Therefore, this method is tedious and may need to repeated for each graph family and/or task.
 
 Representational learning enables us to learn representations that capture structural context and/or corresponding attribute values automatically and are general enough to be used in a variety of downstream tasks. \newline
+
+\ash{It might be worthwhile to dedicate a paragraph to representational learning with an example showing why in our case this is better. It wasn't obvious to me why this technique was chosen.}
 
 Contributions:
 \begin{itemize}
