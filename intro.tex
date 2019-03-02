@@ -3,7 +3,8 @@
 %-------------------------------------------------------------------------------
 \ash{To debug a problem in production it is insufficient to merely identify a failed execution. We need to clearly identify what distinguishes the failed execution from a successful execution. }
 
-\ash{Distributed tracing systems like Dapper, do uniform sampling at very low rates to keep the cost of storing traces low. As a consequence, the long tail of distributed executions is not captured. This tail contains the traces which are symptomatic of edge cases like slow queries, one off execution paths that are infrequent but imperative for identifying the bottlenecks and improving the system.}
+\ash{Distributed tracing systems like Dapper, do uniform sampling at very low rates to keep the cost of storing traces low. As a consequence, the long tail of distributed executions is not captured. This tail contains the traces which are symptomatic of edge cases like slow queries, one off execution paths that are infrequent but imperative for identifying the bottlenecks and improving the system. Individual services have always been augmented with logging, telemetry but they alone cannot
+  reconstruct the elaborate journey of a request across any distributed system. Initially distributed tracing was confined to microservices. There has been a proliferation of tracing into components like databases, queues, proxies, cache \ref{OpenTracingCassandra, OpenTracingKafka, OpenTracingRedis}. This has lead to complete end to end tracing in distributed systems. This enables developers to look at end-to-end properties of a system over multiple executions. }
 
 Here are three problems: 
 \begin{enumerate}
