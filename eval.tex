@@ -25,7 +25,7 @@ We are able to learn clusters accurately, but the problem is that using the clus
 Start with a set of good graphs and a restricted set of test graphs
 Classification worked perfectly when we have 16-dimensional vectors for the nodes \ newline
 %\includegraphics[scale=0.4]{logistic_2d.png} \newline
-\includegraphics[scale=0.6]{test_logistic_2d.png} \newline
+\includegraphics[scale=0.5]{test_logistic_2d.png} \newline
 
 We split our graphs into a training set and a test set
 Specifically, we used the graphs from successful executions as training graphs and those from failed interactions as test graphs
@@ -39,4 +39,5 @@ However, all the services along the request path are alerting.
 Additionally, there might also be other failures that are orthogonal to the failure which add noise to the alerts.
 The hint points to a tree of services that ought to have been called, but were not. The suggestion will be to troubleshoot the service at the root of this tree first.
 
-\kam{ There is going to be a result graph here. Working on getting a better completion. }
+\includegraphics[width=0.5\textwidth]{anon_adrbk_repair.pdf} \newline
+\kam{ There is a placeholder result graph. Services to be added are in solid green, those to be deleted in solid red. Edges to be added are in dashed green, those to be deleted are in dashed red. Solid green edges represent status needs to be successful instead of failed. Currently, there are a lot of suggestions distracting from the hint. I'm currently working to get a better completion }
