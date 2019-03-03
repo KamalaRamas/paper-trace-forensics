@@ -1,11 +1,12 @@
 %-------------------------------------------------------------------------------
 \section{Evaluation}
 %-------------------------------------------------------------------------------
-\kam{WIP: To strengthen the eval, I'm implementing a straw-man for graph representations as a baseline to compare our technique against}
+\kam{I haven't worked fleshed out this section. It is basically just all the stuff I need to talk about} \newline
+\kam{WIP: To strengthen the eval, I'm implementing a straw-man for graph representations as a baseline to compare our technique against} \newline
 
 For our evaluation, we obtained traces from a large e-commerce company, where the underlying system is a micro-service architecture. The traces encapsulate the request-response interactions of micro-services. We obtained traces from three different request paths in the system that correspond to viewing, selling and checking out an item in the catalog. The request paths are not mutually exclusive i.e. they share some services\kam{TODO: How many shared services?} and traces from the same request path can vary subtly based on the exact request parameters.
 
-We use graphs corresponding to a small fraction of traces are used to generate node representations which are then used by clustering, prediction and diagnostic tasks. 
+We use graphs corresponding to a small fraction of traces\kam{TODO: How many?} are used to generate node representations which are then used by clustering, prediction and diagnostic tasks. 
 
 Sanity check: 
 \begin{itemize}
@@ -36,4 +37,6 @@ The failure here is caused by the failure of a particular service and some downs
 Therefore, this failure is due to the absence of one or more services.
 However, all the services along the request path are alerting.
 Additionally, there might also be other failures that are orthogonal to the failure which add noise to the alerts.
-The hint points to a tree of services that ought to have been called, but weren’t. The suggestion will be to troubleshoot the service at the root of this tree first.
+The hint points to a tree of services that ought to have been called, but were not. The suggestion will be to troubleshoot the service at the root of this tree first.
+
+\kam{ There is going to be a result graph here. Working on getting a better completion. }
