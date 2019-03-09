@@ -1,0 +1,40 @@
+%-------------------------------------------------------------------------------
+\section{Introduction}
+%-------------------------------------------------------------------------------
+
+
+End-to-end distributed tracing systems have gained popularity recent years.
+By recording and propagating the causal connections between events distributed across components,
+these systems in many cases obviate the need ad-hoc approaches for correlating information across logs, to address
+problems such as performance profiling, worload monitoring and anomaly detection. (cite)
+An individual execution is represented in a trace as a directed acyclic graph
+whose nodes represent discrete labeled events and whose edges represent causal connections among these events.  For example, such a graph
+might describe how a request to a web service was satisfied via a tree of calls to remote services that provide parts of the content of the final
+rendered page; in some sense, the graph \emph{explains} how the request succeeded, which services were involved, where the time was spent, and so on.
+Distributed tracing has become a big business.  Many real-world deployments~\cite{} and several start-ups
+focusing narrowly on tracing infrastructure and analysis provide evidence of the perceived value of 
+end-to-end tracing.  
+
+Unfortunately, practitioners often have difficulty extracting that value.  Part of the problem is that traces can in general be large and difficult
+to visualize.  More fundamentally, however, most of the practical problems that practitioners would like to solve with end-to-end tracing
+do not involve detailed inspection of an individual trace, but rather in \emph{comparing} an individual trace to some \emph{family} of existing traces.
+For example, a developer or administrator might, given a new trace of unknown class, wish to \emph{classify} it based on a corpus of labeled examples.
+As another, a site reliability engineer might, in an attempt to discover the root cause of a site outage, want to understand how a given trace obtained
+when the site is not operating correctly \emph{differs} from the family of traces obtained when the system is healthy.  
+A third example is \emph{stratified sampling}.  Tracing systems control their overheads by collecting traces only from a small sample of executions, meaning
+that traces of anomalous executions (which are by assumption unlikely) may be overlooked.  One way to bias the sampling so as to collect these rare traces
+is to test \emph{how different} a given trace is to some corpus of traces from a trailing window.
+All of these use cases involve
+differential reasoning \emph{across} possibly large numbers of traces.
+
+While there has been prior work on techniques for trace comparison based on string edit distance of the flattened graph~\cite{Barham:2003:MOM:1251054.1251069, Sambasivan:2011:DPC:1972457.1972463} or on aggregate measures such as node intersection~\cite{Las-Casas:2018:WSE:3267809.3267841}, we believe that
+there is still significant room for improvement.  In particular, these approaches lose contextual information about the \emph{structure} of the 
+trace graphs that in our experience is critical for comparison and differentiation.
+
+In this paper, we explore the use of \emph{representational learning} as a common solution to these problems.  We observe that distributed traces,
+far from being mere ``bags'' of events, are in some sense \emph{utterances} over a language of events in which structural context carries
+significant (if difficult to manually extract) meaning, akin to the way that documents are utterances over a language of words. Inspired by
+advancements originating in the natural language processing community, we ask whether it is possible and practical to learn contextual embeddings
+of events akin to WordToVec, and to construct aggregate representations of entire traces and ultimately collections of similar traces.
+
+We make k contributions:
