@@ -1,44 +1,48 @@
 %-------------------------------------------------------------------------------
 \section{Introduction}
 %-------------------------------------------------------------------------------
-Tracing are increasingly being used in industry~\cite{Jaeger, Zipkin, 36356} and have been shown to be useful in finding the causes of performance problems~ \cite{36356, Fonseca:2007:XPN:1973430.1973450, Reynolds:2006:PDU:1267680.1267689, DBLP:conf/sigmetrics/ThereskaSSWALG06, Sambasivan:2011:DPC:1972457.1972463}, anomaly detection~\cite{Barham:2003:MOM:1251054.1251069, Chen:2004:PFE:1251175.1251198, 37477, Sambasivan:2011:DPC:1972457.1972463} as well as to model workloads, resource usage and timings~\cite{Mann:2011:MPE:2170444.2170464, Chanda:2007:WTP:1272996.1273001, 36356, DBLP:conf/sigmetrics/ThereskaSSWALG06, Barham:2003:MOM:1251054.1251069}.  The opentracing standardization effort~\cite{OpenTracing} is another indication that tracing is gaining traction in industry. Individual services are typically augmented with logging and telemetry but they alone cannot reconstruct the elaborate journey of a request across any distributed system. Initially, distributed tracing was confined to micro-services. Recently, there has been a proliferation of tracing into components like databases, queues, proxies, cache~\cite{OpenTracingCassandra, OpenTracingKafka, OpenTracingRedis}. This has led to complete end to end tracing in distributed systems which enables developers to look at end-to-end properties of a system over multiple executions. \kam{I looked the the paper from SoCC 2018 to get a few references and ended up paraphrasing a few lines from the intro. Is that a problem? Specifically, the weighted sampling paper}
+Individual services are typically augmented with logging and telemetry but even when taken together, reconstructing end-end request flows in a system is generally infeasible. Tracing is increasingly being used in industry~\cite{Jaeger, Zipkin, 36356} and has been shown to be useful in finding the causes of performance problems~\cite{36356, Fonseca:2007:XPN:1973430.1973450, Reynolds:2006:PDU:1267680.1267689, DBLP:conf/sigmetrics/ThereskaSSWALG06, Sambasivan:2011:DPC:1972457.1972463}, anomaly detection~\cite{Barham:2003:MOM:1251054.1251069, Chen:2004:PFE:1251175.1251198, 37477, Sambasivan:2011:DPC:1972457.1972463} as well as to model workloads, resource usage and timings~\cite{Mann:2011:MPE:2170444.2170464, Chanda:2007:WTP:1272996.1273001, 36356, DBLP:conf/sigmetrics/ThereskaSSWALG06, Barham:2003:MOM:1251054.1251069}. The opentracing standardization effort~\cite{OpenTracing} is another indication that tracing is gaining traction in industry. Furthermore, the proliferation of tracing into components like databases, queues, proxies, cache~\cite{OpenTracingCassandra, OpenTracingKafka, OpenTracingRedis} has led to end to end tracing in distributed systems which enables developers to look at end-to-end properties of a system over multiple executions.
 
-Consider debugging a failure in a distributed system in which a user request fails due to component misbehavior. An example of such misbehavior is that of a fallback having been misconfigured such that failover no longer works as expected. It is insufficient to merely obtain a trace, rather we would like to compare traces of a failed execution i.e. one in which the fallback did not take over on failure with the trace of a successful execution i.e. an execution in which fallback behaved correctly. Such a comparison would help us determine the proximal cause of failure. However, for this comparison to be actually useful we would need to compare traces which exercise the same path in the system.	
-In order to use tracing effectively for debugging, we need to be able to compare graphs in two different ways:
-\begin{itemize}
-\item Comparing traces with one another in order to be able to bin then based on their execution paths.
-\item Differencing of trace of a failed execution from that of successful execution(s) in the same class.
-\end{itemize}
+An individual execution is represented in a trace as a directed acyclic graph whose nodes represent discrete labeled events and whose edges represent causal connections among these events.  For example, such a graph might describe how a request to a web service was satisfied via a tree of calls to remote services that provide parts of the 
+content of the final rendered page; in some sense, the graph \emph{explains} how the request succeeded, which services were involved, where the time was spent, and so on. Distributed tracing has become a big business.  Many real-world deployments~\kam{cite} and several start-ups focusing narrowly on tracing infrastructure and analysis provide evidence of the perceived value of end-to-end tracing.  
 
-Another use case is \emph{stratified sampling}. Distributed tracing systems like Dapper~\cite{36356} perform uniform sampling at very low rates to keep the cost of storing traces low.  As a consequence, the long tail of distributed executions is not captured. This tail contains the traces which are symptomatic of edge cases like slow queries, one-off execution paths that are infrequent but imperative for identifying the bottlenecks and improving the system. 
+Unfortunately, practitioners often have difficulty extracting that value. Part of the problem is that traces can in general be large and difficult to visualize.  More fundamentally, however, most of the practical problems that practitioners would like to solve with end-to-end tracing do not involve detailed inspection of an individual trace, but rather in \emph{comparing} an individual trace to some \emph{family} of existing traces. Consider a site reliability engineer debugging a failure in a distributed system in which a user request fails due to \emph{component misbehavior} resulting in a site outage. An example of such misbehavior is that of a fallback having been misconfigured such that failover no longer works as expected. In this instance, it is insufficiently to merely obtain a trace; rather the SRE would like to know how traces of a failed execution i.e. ones in which the fallback did not take over on failure \emph{differ} from those of successful execution(s) i.e. execution(s) in which fallback behaved correctly. Such a comparison would help determine the proximal cause of failure. 
+%An additional constraint is that we need to find traces of successful executions that exercise the same execution path as the failed execution in order to use tracing effectively for debugging. 
+%We need to be able to compare graphs in two different ways:
+%\begin{itemize}
+%\item Comparing traces with one another in order to be able to bin then based on their execution paths.
+%\item Differencing of trace of a failed execution from that of successful execution(s) in the same class.
+%\end{itemize}
+
+Another use case is \emph{stratified sampling}. Distributed tracing systems like Dapper~\cite{36356} perform uniform sampling at very low rates to keep the cost of storing traces low.  As a consequence, the long tail of distributed executions is not captured. This tail contains traces which are symptomatic of edge cases like slow queries, one-off execution paths that are infrequent but imperative for identifying the bottlenecks and improving the system. One way to bias the sampling so as to collect these rare traces is to test \emph{how different} a given trace is to some corpus of traces from a trailing window.
+
 %\ash{We jumped from a generic failure to long tail distribution. We need to stick to one.
 %Please look at Section 2 of So, you want to trace your distributed system?
 %Key design insights from years of practical experience? By Sambasavin and pick the use case you want to specifically address.}
 
-In order to be able to effectively sample traces we need to techniques to compare graphs with one another:
+%n order to be able to effectively sample traces we need to techniques to compare graphs with one another:
+%\begin{itemize}
+%\item To identify graphs that are different from each other in order to store traces that appear infrequently.
+%\item To identify graphs that are similar to each other and quantify this similarity. 
+%\end{itemize}
+
+As a third example, a developer or administrator might, given a new trace of unknown class, wish to \emph{classify} it based on a corpus of labeled examples. All of the use cases involve differential reasoning \emph{across} possibly a large number of graphs. Therefore, in order for tracing to achieve its full potential, we need to couple tracing with graph comparison. As a framework to discuss different graph comparison approaches, we define:
 \begin{itemize}
-\item To identify graphs that are different from each other in order to store traces that appear infrequently.
-\item To identify graphs that are similar to each other and quantify this similarity. 
+\item Trace representation: \newline
+Given a trace associated with a graph, G=(V,E), a trace representation is a map M, such that \newline
+$M\colon G \rightarrow Rep$, where $Rep \in String, R^{d}$
+\item Distance measure to compute distances between the representations
 \end{itemize}
+Prior work~\cite{Barham:2003:MOM:1251054.1251069, Sambasivan:2011:DPC:1972457.1972463} use flattening the graph generated by a trace as embedding and string-edit distance as distance measure to compare graphs. More recently, Las-Casas et al.~\cite{Las-Casas:2018:WSE:3267809.3267841} use a node-based array as representation, in which the number of occurrences of a node is an entry in the array and euclidean distance for the distance measure. While their results are promising, a different trace embedding may be necessary based on the characteristics of the graphs or problem under consideration. All the representations used in prior work have been hand-generated using domain knowledge to solve a particular problem.
 
-Therefore, in order for tracing to achieve its full potential, we need to couple tracing with graph comparison techniques. In particular, we need to define two quantities:
-\begin{itemize}
-\item Trace embedding: \newline
-Given a graph, G=(V,E), a trace embedding is a map M, such that \newline
-$M\colon G \rightarrow TE$, where $TE \in String, R^{d}$
-\item Distance measure to compute distances between the embeddings
-\end{itemize}
-Prior work~\cite{Barham:2003:MOM:1251054.1251069, Sambasivan:2011:DPC:1972457.1972463} use flattening the graph generated by a trace as embedding and string-edit distance as distance measure to compare graphs. More recently, Las-Casas et al.~\cite{Las-Casas:2018:WSE:3267809.3267841} use a node-based array as embedding, where each distinct node is represented as an entry in the array and euclidean distance for the distance measure. While their results seem promising, a different trace embedding may be necessary based on the characteristics of the graphs or problem under consideration. The issue is that all of the embeddings have been generated by using domain knowledge about the traces and the problem it is going to be used for. 
+Since we primarily perform structural comparisons of the graphs derived from traces, general purpose embeddings that encode structural information can potentially be used for a variety of downstream tasks. Can general purpose trace embeddings automatically from data? Turns out, they can. \emph{Representational learning} primarily emerged to address the problem of feature engineering for graphs before machine learning tasks can be applied. It is attractive for two reasons: It is data-driven and does not depend on feature engineering, unlike prior approaches; nodes or entire graphs are embedded in a low dimensional space $R^{d}$, such that the geometric relationships in the vector space reflect the structure of the original graph. Representational learning techniques have been used in diverse fields such as social network analysis and molecular biology\kam{cite}. We are the first to demonstrate their applications to distributed tracing. 
+%A recent survey paper by Hamilton et al.~\cite{corr_2017_abs-1709-05584} points out that prior work on feature engineering involved extracting summary information from graphs, graph kernels or carefully engineered features to measure local neighborhood structures. 
 
-However, given the knowledge that embeddings which capture structural information from the graph can be used in a wide variety of problems similar to the two described above, can we learn general purpose trace embeddings automatically from the data? Turns out, we can. Representational learning emerged to address the problem of feature engineering for graphs before machine learning tasks can be applied. A recent survey paper by Hamilton et al.~\cite{corr_2017_abs-1709-05584} points out that prior work on feature engineering involved extracting summary information from graphs, graph kernels or carefully engineered features to measure local neighborhood structures. 
-
-Representational learning is attractive for two reasons: It is data-driven and does not depend on feature engineering, unlike prior approaches; nodes or entire graphs are embedded in a low dimensional space $R^{d}$, such that the geometric relationships in the vector space reflect the structure of the original graph. Representational learning techniques have been used in diverse fields such as social network analysis and molecular biology. We are the first to demonstrate their applications to distributed systems. 
+In this paper, we explore the use of \emph{representational learning} as a common solution to the uses cases described.  We observe that distributed traces, far from being mere ``bags'' of events, are in some sense \emph{utterances} over a language of events in which structural context carries significant (if difficult to manually extract) meaning, akin to the way that documents are utterances over a language of words. Inspired by advancements originating in the natural language processing community, we ask whether it is possible and practical to learn contextual embeddings of events akin to Word2Vec, and to construct aggregate representations of entire traces and ultimately collections of 
+similar traces.
 
 Our contributions include:
 \begin{itemize}
-\item Representational learning far outperforms a naive approach \kam{Work in progress. Claim as yet unproven }
+\item Representational learning outperforms a naive approach \kam{Work in progress. Claim as yet unproven }
 \item Provide initial results of the use of graph representations for a variety of use cases as hinting at possible causes of failures, classification and clustering.
 \end{itemize}
-
-\kam{I tried to incorporate graph generation, but I could not think of an application. Maybe we should discuss?}
-
