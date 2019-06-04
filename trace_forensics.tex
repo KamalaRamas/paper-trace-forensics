@@ -95,6 +95,12 @@ Second Institution
 \begin{abstract}
 %-------------------------------------------------------------------------------
 
+To respond to an outage or determine the cause of failure, operators and/or developers of the system typically reason both about the presence or absence of events and their interactions in an anomalous execution when compared with the normal behavior of the system. Distributed traces capture causality of events occurring across system components and can therefore be used to troubleshoot outages, since anomalous executions must surely differ from steady state executions - in the events, their interactions, or other attributes such as CPU or memory usage. In order to find \textit{how} the trace from an anomalous execution diverges from steady state, it may be necessary to reason about the similarities and differences across many traces. Current tooling provides features to extract and summarize features for each individual traces, but provides little support for reasoning and analysis across traces. By contrast, analysis tools that allow efficient comparisons among traces use data representations, such as flattening graphs using a depth first walk, that lose valuable \textit{structural} information regarding causal relationships among the recorded events.
+
+In this paper, we explore the construction and use of structural embeddings, borrowed from the NLP literature, to represent and compare traces in a way that preserves their causal context. We present quantitative results demonstrating that the learned embeddings outperform the state of the art for traces drawn from execution paths which correspond to functionality such as checking out an item, viewing the product page and listing item(s) to sell. We also present qualitative results demonstrating the application of our technique to provide hints for troubleshooting outages.
+
+
+
 \end{abstract}
 
 \input{intro.tex}
